@@ -27,8 +27,6 @@ export async function getTickets(req: AuthenticatedRequest, res: Response) {
 
 export async function createTicket(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-
-  //TODO validação do JOI
   const { ticketTypeId } = req.body;
 
   if (!ticketTypeId) {
