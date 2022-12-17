@@ -1,3 +1,5 @@
+import { Room } from "@prisma/client";
+
 export type ApplicationError = {
   name: string;
   message: string;
@@ -29,4 +31,13 @@ export type RequestError = {
   statusText: string,
   name: string,
   message: string,
+};
+
+export type HotelProvider = {
+  id: number,
+  name: string,
+  createdAt: Date,
+  updatedAt: Date,
+  Rooms: Room[],
+  roomsTypes: string[]
 };
