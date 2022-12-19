@@ -6,3 +6,10 @@ export function cannotListHotelsError(): ApplicationError {
     message: "Cannot list hotels!",
   };
 }
+
+export function customerNotPayment(): ApplicationError {
+  return {
+    name: "customerNotPayment",
+    message: "Cannot list hotels!"
+  };
+}
