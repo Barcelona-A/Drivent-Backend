@@ -101,7 +101,8 @@ describe("GET /hotels", () => {
           image: createdHotel.image,
           createdAt: createdHotel.createdAt.toISOString(),
           updatedAt: createdHotel.updatedAt.toISOString(),
-          roomsTypes: []
+          roomsTypes: [],
+          availableRooms: expect.any(Number)
         }
       ]);
     });

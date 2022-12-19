@@ -3,9 +3,7 @@ import enrollmentRepository from "@/repositories/enrollment-repository";
 import ticketRepository from "@/repositories/ticket-repository";
 import { notFoundError } from "@/errors";
 import { cannotListHotelsError, customerNotPayment } from "@/errors/cannot-list-hotels-error";
-import { Room } from "@prisma/client";
-import { HotelProvider } from "@/protocols";
-import { exclude } from "@/utils/prisma-utils";
+import { HotelProvider, RoomProvider } from "@/protocols";
 
 async function listHotels(userId: number) {
   //Tem enrollment?
@@ -26,17 +24,24 @@ async function listHotels(userId: number) {
 }
 
 async function getHotels(userId: number) {
-  await listHotels(userId);
+  //await listHotels(userId);
   const hotels: any = await hotelRepository.findHotels();
-
-  hotels.forEach((hotel: HotelProvider) => {
+  
+  hotels.forEach(async (hotel: HotelProvider) => {
     const rooms = hotel.Rooms;
     const roomsTypes: string[] = [];
     let hasSingle = false;
     let hasDouble = false;
     let hasTriple = false;
+    let totalCapicty = 0;
+    let totalBookings = 0;
+    let availableVacancies = 0;
+    
+    rooms.filter(async (room: RoomProvider) => { //colocar um tipo
+      totalCapicty += room.capacity;
+      totalBookings += room.Booking.length;
+      availableVacancies = totalCapicty - totalBookings;
 
-    rooms.filter((room: Room) => {
       if (room.capacity === 1 && !hasSingle) {
         roomsTypes.push("Single");
         hasSingle = true;
@@ -52,6 +57,7 @@ async function getHotels(userId: number) {
     });
     delete hotel.Rooms;
     hotel.roomsTypes = roomsTypes;
+    hotel.availableVacancies = availableVacancies;
   });
   
   return hotels as Omit<HotelProvider, "Rooms">[];
