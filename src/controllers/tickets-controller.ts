@@ -28,7 +28,6 @@ export async function getTickets(req: AuthenticatedRequest, res: Response) {
 export async function createTicket(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
 
-  //TODO validação do JOI
   const { ticketTypeId } = req.body;
 
   if (!ticketTypeId) {
@@ -40,6 +39,9 @@ export async function createTicket(req: AuthenticatedRequest, res: Response) {
 
     return res.status(httpStatus.CREATED).send(ticketTypes);
   } catch (error) {
+    if(error.name === "ConflictError") {
+      return res.status(httpStatus.CONFLICT).send(error.message);
+    }
     return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
