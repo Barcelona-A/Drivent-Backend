@@ -228,6 +228,16 @@ describe("POST /tickets", () => {
       });
     });
 
+    it("should respond with satus 409 if the user already has a ticket", async () => {
+      const user = await createUser();
+      const token = await generateValidToken(user);
+      await createEnrollmentWithAddress(user);
+      const ticketType = await createTicketType();
+      await server.post("/tickets").set("Authorization", `Bearer ${token}`).send({ ticketTypeId: ticketType.id });
+      const response = await server.post("/tickets").set("Authorization", `Bearer ${token}`).send({ ticketTypeId: ticketType.id });
+      expect(response.status).toBe(409);
+    });
+
     it("should insert a new ticket in the database", async () => {
       const user = await createUser();
       const token = await generateValidToken(user);
