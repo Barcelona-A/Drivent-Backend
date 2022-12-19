@@ -24,7 +24,7 @@ async function listHotels(userId: number) {
 }
 
 async function getHotels(userId: number) {
-  //await listHotels(userId);
+  await listHotels(userId);
   const hotels: any = await hotelRepository.findHotels();
   
   hotels.forEach(async (hotel: HotelProvider) => {
@@ -37,7 +37,7 @@ async function getHotels(userId: number) {
     let totalBookings = 0;
     let availableVacancies = 0;
     
-    rooms.filter(async (room: RoomProvider) => { //colocar um tipo
+    rooms.filter(async (room: RoomProvider) => {
       totalCapicty += room.capacity;
       totalBookings += room.Booking.length;
       availableVacancies = totalCapicty - totalBookings;
