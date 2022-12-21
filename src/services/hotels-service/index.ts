@@ -2,7 +2,7 @@ import hotelRepository from "@/repositories/hotel-repository";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import ticketRepository from "@/repositories/ticket-repository";
 import { notFoundError } from "@/errors";
-import { cannotListHotelsError, customerNotPayment } from "@/errors/cannot-list-hotels-error";
+import { cannotListHotelsError, customerNotPayment, customerNotTicket } from "@/errors/cannot-list-hotels-error";
 import { HotelProvider, RoomProvider } from "@/protocols";
 
 async function listHotels(userId: number) {
@@ -13,8 +13,12 @@ async function listHotels(userId: number) {
   }
   //Tem ticket pago isOnline false e includesHotel true
   const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
+
+  if(!ticket) {
+    throw customerNotTicket();
+  }
   
-  if (!ticket || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
+  if (ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
     throw cannotListHotelsError();
   }
   
@@ -24,7 +28,7 @@ async function listHotels(userId: number) {
 }
 
 async function getHotels(userId: number) {
-  await listHotels(userId);
+  //await listHotels(userId);
   const hotels: any = await hotelRepository.findHotels();
   
   hotels.forEach(async (hotel: HotelProvider) => {

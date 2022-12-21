@@ -13,3 +13,10 @@ export function customerNotPayment(): ApplicationError {
     message: "Cannot list hotels!"
   };
 }
+
+export function customerNotTicket(): ApplicationError {
+  return {
+    name: "customerNotTicket",
+    message: "Cannot list hotels!"
+  };
+}
