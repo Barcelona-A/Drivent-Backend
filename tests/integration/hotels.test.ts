@@ -102,7 +102,7 @@ describe("GET /hotels", () => {
           createdAt: createdHotel.createdAt.toISOString(),
           updatedAt: createdHotel.updatedAt.toISOString(),
           roomsTypes: [],
-          availableRooms: expect.any(Number)
+          availableVacancies: expect.any(Number)
         }
       ]);
     });
