@@ -44,3 +44,20 @@ export async function getHotelsWithRooms(req: AuthenticatedRequest, res: Respons
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }
+
+export async function getRooms(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+
+  try {
+    const rooms = await hotelService.getRooms(Number(userId));
+    return res.status(httpStatus.OK).send(rooms);
+  } catch (error) {
+    if (error.name === "NotFoundError") {
+      return res.sendStatus(httpStatus.NOT_FOUND);
+    }
+    if (error.name === "cannotListHotelsError") {
+      return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
+    }
+    return res.sendStatus(httpStatus.BAD_REQUEST);
+  }
+}
