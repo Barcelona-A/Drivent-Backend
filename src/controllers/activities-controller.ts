@@ -13,6 +13,9 @@ export async function listActivities(req: AuthenticatedRequest, res: Response) {
     if (error.name === "ticketIsRemote") {
       return res.sendStatus(httpStatus.NOT_ACCEPTABLE);
     }
+    if (error.name === "customerNotPayment") {
+      return res.sendStatus(403);
+    }
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 }

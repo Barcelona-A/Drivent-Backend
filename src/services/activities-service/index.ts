@@ -4,6 +4,7 @@ import ticketRepository from "@/repositories/ticket-repository";
 import { customerNotTicket, customerNotPayment } from "@/errors/cannot-list-hotels-error";
 import { ticketIsRemote } from "@/errors/ticket-is-remote-error";
 import activitiesRepository from "@/repositories/activities-repository";
+import { TicketStatus } from "@prisma/client";
 
 async function getActivities(userId: number) {
   await checkTicketIsRemote(userId);
@@ -23,6 +24,10 @@ async function checkTicketIsRemote(userId: number) {
 
   if (ticket.TicketType.isRemote ) {
     throw ticketIsRemote();
+  }
+
+  if(ticket.status === "RESERVED") {
+    throw customerNotPayment();
   }
 }
 
