@@ -38,6 +38,7 @@ model Event {
   logoImageUrl       String   @db.VarChar(255)
   startsAt           DateTime
   endsAt             DateTime
+  Activity           Activity[]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 }
@@ -142,7 +143,9 @@ model Booking {
 
 model Activity {
   id              Int               @id @default(autoincrement())
-  date            DateTime  
+  Event           Event             @relation(fields: [eventId], references: [id])
+  eventId         Int
+  date            DateTime          
   Local           Local             @relation(fields: [localId], references: [id])
   localId         Int
   name            String
@@ -153,6 +156,8 @@ model Activity {
   ActivityBooking ActivityBooking[]
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
+  
+  @@index([date])
 }
 
 model Local {
