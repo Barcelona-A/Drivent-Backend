@@ -81,7 +81,7 @@ async function getRooms(userId: number) {
   await listHotels(userId);
   const rooms = await hotelRepository.findHotels();
 
-  if (!rooms) {
+  if (rooms.length < 1) {
     throw notFoundError();
   }
   return rooms;
