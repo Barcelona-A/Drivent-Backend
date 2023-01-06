@@ -4,9 +4,11 @@ import httpStatus from "http-status";
 import activitiesService from "@/services/activities-service";
 
 export async function listActivities(req: AuthenticatedRequest, res: Response) {
+  const { userId } = req;
+  const { activityDate } = req.query as any;
+  
   try {
-    const { userId } = req;
-    const activities = await activitiesService.getActivities(userId);
+    const activities = await activitiesService.getActivities(userId, activityDate);
     
     return res.status(httpStatus.OK).send(activities);
   } catch(error) {

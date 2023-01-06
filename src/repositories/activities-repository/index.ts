@@ -1,11 +1,20 @@
 import { prisma } from "@/config";
 
-async function findActivities() {
-  return ["activity1", "activity2"];
+async function findActivities(date: any) {
+  return prisma.activity.findMany({
+    where: { date }
+  });
+}
+
+async function findActivitiesDate() {
+  return prisma.activity.findMany({
+    select: { date: true }
+  });
 }
 
 const activitiesRepository = {
-  findActivities
+  findActivities,
+  findActivitiesDate
 };
 
 export default activitiesRepository;
