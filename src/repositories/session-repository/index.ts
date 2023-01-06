@@ -6,9 +6,18 @@ async function create(data: Prisma.SessionUncheckedCreateInput) {
     data,
   });
 }
+async function createWithAccessToken(userId: number, token: string) {
+  return prisma.session.create({
+    data: {
+      userId,
+      token
+    }
+  });
+}
 
 const sessionRepository = {
   create,
+  createWithAccessToken
 };
 
 export default sessionRepository;
