@@ -6,6 +6,7 @@ import { ticketIsRemote } from "@/errors/ticket-is-remote-error";
 import activitiesRepository from "@/repositories/activities-repository";
 import { Activity, Local, ActivityBooking } from "@prisma/client";
 import { invalidDataError } from "@/errors";
+import { DateType, Hash } from "@/protocols";
 
 async function getActivities(userId: number, activityDate: string | undefined): Promise<string[] | Activity[] | LocalsActivities[]> {
   await checkTicketIsRemote(userId);
@@ -22,20 +23,25 @@ async function getActivities(userId: number, activityDate: string | undefined): 
 
   const listActivitiesDate = await activitiesRepository.findActivitiesDate();
 
-  const arrDates = listActivitiesDate.map(value => {
+  const allDates = listActivitiesDate.map(value => {
     return value.date.toUTCString();
   });
+  
+  return extractDates(allDates);
+}
 
-  const dates: string[] = []; //implementar hashtable
-  for (const i in arrDates) {
-    const dateAlreadyExists = dates.find(element => element === arrDates[i]);
-    if (dateAlreadyExists) {
-      continue;
-    }
-    dates.push(arrDates[i]);
+function extractDates(allDates: DateType) {
+  const hashDates: Hash = {};
+
+  for (const i in allDates) {
+    if (hashDates[allDates[i]]) continue;
+
+    hashDates[allDates[i]] = true;
   }
 
-  return dates;
+  const differentDates = Object.keys(hashDates);
+
+  return differentDates;
 }
 
 async function checkTicketIsRemote(userId: number) {
