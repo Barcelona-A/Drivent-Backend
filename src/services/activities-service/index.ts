@@ -20,15 +20,16 @@ async function getActivities(userId: number, activityDate: string | undefined): 
       throw invalidDataError(["Date cannot be read"]);
     }
 
+    //const activitiesExistsOnRedis = await redis.exists(activitiesKey);
+    //if(activitiesExistsOnRedis) return getOnRedis(activitiesKey);
+
     const date = new Date(timeStamp);
-    const activities = JSON.stringify(await activitiesRepository.findActivitiesWithLocals(date));
+    //const activities = JSON.stringify(await activitiesRepository.findActivitiesWithLocals(date));
+    return await activitiesRepository.findActivitiesWithLocals(date);
 
-    const activitiesExistsOnRedis = await redis.exists(activitiesKey);
-    if(activitiesExistsOnRedis) return getOnRedis(activitiesKey);
-    
-    await saveOnRedis(activities, activitiesKey);
+    //await saveOnRedis(activities, activitiesKey);
 
-    return getOnRedis(activitiesKey);
+    //return getOnRedis(activitiesKey);
   }
 
   const datesExistsOnRedis = await redis.exists(datesKey);
