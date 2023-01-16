@@ -1,5 +1,7 @@
 import { prisma } from "@/config";
 import dayjs from "dayjs";
+import { Activity, ActivityBooking } from "@prisma/client";
+import { type } from "os";
 
 async function findActivities(date: any) {
   return prisma.activity.findMany({
@@ -40,10 +42,52 @@ async function findActivitiesWithLocals(date: Date) {
   });
 }
 
+async function findActivitiesById(activityId: number): Promise<Activity> {
+  return prisma.activity.findFirst({
+    where: {
+      id: activityId,
+    }
+  });
+}
+
+async function findActivitiesBookingByActivityId(activityId: number): Promise<ActivityBooking[]> {
+  return prisma.activityBooking.findMany({
+    where: {
+      activityId,
+    }
+  });
+}
+
+async function findActivitiesBookingByUserId(userId: number): Promise<(ActivityBooking & {
+  Activity: Activity;
+})[]> {
+  return prisma.activityBooking.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      Activity: true,
+    }
+  });
+}
+
+async function createActivitiesBooking(activityId: number, userId: number): Promise<ActivityBooking> {
+  return prisma.activityBooking.create({
+    data: {
+      activityId,
+      userId,
+    }
+  });
+}
+
 const activitiesRepository = {
   findActivities,
   findActivitiesDate,
   findActivitiesWithLocals,
+  findActivitiesById,
+  findActivitiesBookingByActivityId,
+  findActivitiesBookingByUserId,
+  createActivitiesBooking,
 };
 
 export default activitiesRepository;

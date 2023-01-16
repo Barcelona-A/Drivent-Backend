@@ -1,4 +1,4 @@
-import { notFoundError } from "@/errors";
+import { conflictError, notFoundError } from "@/errors";
 import enrollmentRepository from "@/repositories/enrollment-repository";
 import ticketRepository from "@/repositories/ticket-repository";
 import { customerNotTicket, customerNotPayment } from "@/errors/cannot-list-hotels-error";
@@ -58,8 +58,32 @@ async function checkTicketIsRemote(userId: number) {
   }
 }
 
+async function checkActivityAvailability(activityId: number, userId: number) {
+  const activitiy = await activitiesRepository.findActivitiesById(Number(activityId));
+
+  if(!activitiy)  {
+    throw notFoundError();
+  }
+
+  const quantityBookings = (await activitiesRepository.findActivitiesBookingByActivityId(Number(activityId))).length;
+  const userActivities = await activitiesRepository.findActivitiesBookingByUserId(Number(userId));
+  const filteredActivities = userActivities.filter((act) => act.Activity.date.getDate() === activitiy.date.getDate());
+  const conflict = filteredActivities.filter((act) => (act.Activity.startsAt <= activitiy.startsAt && act.Activity.endsAt >= activitiy.startsAt));
+
+  if(activitiy.capacity <= quantityBookings) {
+    throw conflictError("Conflict");
+  }
+
+  if(conflict.length > 0) {
+    throw conflictError("Conflict");
+  }
+
+  await activitiesRepository.createActivitiesBooking(activityId, userId);
+}
+
 const activitiesService = {
   getActivities,
+  checkActivityAvailability,
 };
 
 export default activitiesService;
