@@ -59,14 +59,18 @@ async function checkTicketIsRemote(userId: number) {
 }
 
 async function checkActivityAvailability(activityId: number, userId: number) {
-  const activitiy = await activitiesRepository.findActivitiesById(activityId);
-  const quantityBookings = (await activitiesRepository.findActivitiesBookingByActivityId(activityId)).length;
-  const userActivitiesBookings = await activitiesRepository.findActivitiesBookingByUserId(userId);
-  const userActivities = userActivitiesBookings.map( async (booking) => await activitiesRepository.findActivitiesById(booking.activityId));
-  const filteredActivities = userActivities.filter(async (uActivities) => activitiy.date === (await uActivities).date);
-  const conflict = filteredActivities.filter(async (actv) => (await actv).startsAt <= activitiy.startsAt && (await actv).endsAt >= activitiy.startsAt);
-  
-  if(activitiy.capacity >= quantityBookings) {
+  const activitiy = await activitiesRepository.findActivitiesById(Number(activityId));
+
+  if(!activitiy)  {
+    throw notFoundError();
+  }
+
+  const quantityBookings = (await activitiesRepository.findActivitiesBookingByActivityId(Number(activityId))).length;
+  const userActivities = await activitiesRepository.findActivitiesBookingByUserId(Number(userId));
+  const filteredActivities = userActivities.filter((act) => act.Activity.date.getDate() === activitiy.date.getDate());
+  const conflict = filteredActivities.filter((act) => (act.Activity.startsAt <= activitiy.startsAt && act.Activity.endsAt >= activitiy.startsAt));
+
+  if(activitiy.capacity <= quantityBookings) {
     throw conflictError("Conflict");
   }
 
@@ -74,7 +78,7 @@ async function checkActivityAvailability(activityId: number, userId: number) {
     throw conflictError("Conflict");
   }
 
-  activitiesRepository.createActivitiesBooking(activityId, userId);
+  await activitiesRepository.createActivitiesBooking(activityId, userId);
 }
 
 const activitiesService = {

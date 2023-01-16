@@ -30,11 +30,14 @@ export async function bookActivity(req: AuthenticatedRequest, res: Response) {
     return res.sendStatus(httpStatus.BAD_REQUEST);
   }
   try {
-    activitiesService.checkActivityAvailability(Number(activityId), userId);
+    await activitiesService.checkActivityAvailability(Number(activityId), userId);
     return res.sendStatus(httpStatus.CREATED);
   } catch (error) {
     if(error.name === "ConflictError") {
       return res.sendStatus(httpStatus.CONFLICT);
+    }
+    if(error.name === "NotFoundError") {
+      return res.sendStatus(httpStatus.NOT_FOUND);
     }
   }
 }
