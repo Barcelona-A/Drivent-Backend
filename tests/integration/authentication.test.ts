@@ -86,3 +86,45 @@ describe("POST /auth/sign-in", () => {
     });
   });
 });
+
+describe("POST /auth/sign-in-github", () => {
+  it("should respond with status 401 when body is not given", async () => {
+    const response = await server.post("/auth/sign-in-github");
+
+    expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+  });
+
+  describe("when body is valid", () => {
+    const generateValidBody = () => ({
+      email: faker.internet.email(),
+      accessToken: faker.internet.password(6),
+      username: faker.name.firstName()
+    });
+    it("should respond with user data", async () => {
+      const body = generateValidBody();
+      const user = await createUser(body);
+
+      const response = await server.post("/auth/sign-in-github").send(body);
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual({
+        token: response.body.token,
+        user: {
+          id: user.id,
+          email: user.email,
+        } });
+    });
+
+    it("should respond with user data when user not exists", async () => {
+      const body = generateValidBody();
+      const response = await server.post("/auth/sign-in-github").send(body);
+      expect(response.status).toBe(httpStatus.OK);
+      expect(response.body).toEqual({
+        token: response.body.token,
+        user: {
+          id: response.body.user.id,
+          email: response.body.user.email,
+        }
+      });
+    });
+  });
+});
