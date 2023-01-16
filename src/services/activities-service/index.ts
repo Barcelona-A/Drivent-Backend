@@ -58,6 +58,10 @@ async function checkTicketIsRemote(userId: number) {
   }
 }
 
+async function checkActivityAvailability(activityId: number, userId: number) {
+  const activitiy = activitiesRepository.findActivitiesById(activityId);
+}
+
 const activitiesService = {
   getActivities,
 };

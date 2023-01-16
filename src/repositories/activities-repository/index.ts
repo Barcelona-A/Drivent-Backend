@@ -1,5 +1,6 @@
 import { prisma } from "@/config";
 import dayjs from "dayjs";
+import { Activity } from "@prisma/client";
 
 async function findActivities(date: any) {
   return prisma.activity.findMany({
@@ -38,10 +39,19 @@ async function findActivitiesWithLocals(date: Date) {
   });
 }
 
+async function findActivitiesById(activityId: number): Promise<Activity> {
+  return prisma.activity.findFirst({
+    where: {
+      id: activityId,
+    }
+  });
+}
+
 const activitiesRepository = {
   findActivities,
   findActivitiesDate,
   findActivitiesWithLocals,
+  findActivitiesById
 };
 
 export default activitiesRepository;
