@@ -31,7 +31,9 @@ async function findActivitiesWithLocals(date: Date) {
           startsAt: true,
           endsAt: true,
           capacity: true,
-          ActivityBooking: true,          
+          _count: {
+            select: { ActivityBooking: true },
+          },
         }
       },
     },

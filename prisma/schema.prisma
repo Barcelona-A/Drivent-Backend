@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["interactiveTransactions"]
 }
 
 datasource db {
@@ -151,7 +152,6 @@ model Activity {
   name            String
   startsAt        DateTime
   endsAt          DateTime  
-  duration        Int
   capacity        Int
   ActivityBooking ActivityBooking[]
   createdAt       DateTime          @default(now())
