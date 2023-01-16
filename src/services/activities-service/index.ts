@@ -6,9 +6,13 @@ import { ticketIsRemote } from "@/errors/ticket-is-remote-error";
 import activitiesRepository from "@/repositories/activities-repository";
 import { Activity, Local, ActivityBooking } from "@prisma/client";
 import { invalidDataError } from "@/errors";
+import { DateType, Hash } from "@/protocols";
+import redis from "@/repositories/redis-repository";
 
 async function getActivities(userId: number, activityDate: string | undefined): Promise<string[] | Activity[] | LocalsActivities[]> {
   await checkTicketIsRemote(userId);
+  const datesKey = "activitiesDates";
+  const activitiesKey = "activitiesLocals";
 
   if (activityDate) {    
     const timeStamp: number | string = Date.parse(activityDate);
@@ -16,26 +20,48 @@ async function getActivities(userId: number, activityDate: string | undefined): 
       throw invalidDataError(["Date cannot be read"]);
     }
 
+    //const activitiesExistsOnRedis = await redis.exists(activitiesKey);
+    //if(activitiesExistsOnRedis) return getOnRedis(activitiesKey);
+
     const date: Date = new Date(timeStamp);
     return activitiesRepository.findActivitiesWithLocals(date);
   }
 
+  const datesExistsOnRedis = await redis.exists(datesKey);
+  if (datesExistsOnRedis) return getOnRedis(datesKey);
+
   const listActivitiesDate = await activitiesRepository.findActivitiesDate();
 
-  const arrDates = listActivitiesDate.map(value => {
+  const allDates = listActivitiesDate.map(value => {
     return value.date.toUTCString();
   });
+  
+  const dates = await extractDates(allDates);
+  await saveOnRedis(dates, datesKey);
+  return getOnRedis(activitiesKey);
+}
 
-  const dates: string[] = []; //implementar hashtable
-  for (const i in arrDates) {
-    const dateAlreadyExists = dates.find(element => element === arrDates[i]);
-    if (dateAlreadyExists) {
-      continue;
-    }
-    dates.push(arrDates[i]);
+async function extractDates(allDates: DateType) {
+  const hashDates: Hash = {};
+  
+  for (const i in allDates) {
+    if (hashDates[allDates[i]]) continue;
+
+    hashDates[allDates[i]] = true;
   }
 
-  return dates;
+  const differentDates = Object.keys(hashDates);
+  return differentDates;
+}
+
+async function getOnRedis(key: string) {
+  const datesFromRedis = JSON.parse(await redis.get(key));
+  return datesFromRedis;
+}
+
+async function saveOnRedis(data: any, key: string) {
+  const dataForRedis = JSON.stringify(data);
+  return redis.set(key, dataForRedis);
 }
 
 async function checkTicketIsRemote(userId: number) {

@@ -52,3 +52,9 @@ export type RoomProvider = {
   updatedAt: Date;
   Booking: Booking[]
 }
+
+export type DateType = string[];
+
+export type Hash = {
+  [key: string]: boolean
+}
