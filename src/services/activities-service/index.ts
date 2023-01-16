@@ -11,12 +11,12 @@ async function getActivities(userId: number, activityDate: string | undefined): 
   await checkTicketIsRemote(userId);
 
   if (activityDate) {    
-    const timeStamp = Date.parse(activityDate);
+    const timeStamp: number | string = Date.parse(activityDate);
     if (isNaN(timeStamp)) {
       throw invalidDataError(["Date cannot be read"]);
     }
 
-    const date = new Date(timeStamp);
+    const date: Date = new Date(timeStamp);
     return activitiesRepository.findActivitiesWithLocals(date);
   }
 
@@ -72,6 +72,8 @@ export type LocalsActivities = (Local & {
       startsAt: Date;
       endsAt: Date;
       capacity: number;
-      ActivityBooking: ActivityBooking[];
+      _count: {
+        ActivityBooking: number;
+      }
   }[];
 });
